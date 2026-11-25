@@ -160,6 +160,10 @@
   const tourState = () => (allDone() ? "done" : S.jobs.some((j) => j.status === "done" || j.status === "active" || j.done > 0) ? "doing" : "todo");
   const DAY = 24 * 60 * 60 * 1000;
   const dayPassed = () => allDone() && Boolean(S.doneAt) && Date.now() - S.doneAt >= DAY;
+  const leavesIn = () => {
+    const h = Math.max(1, Math.ceil((DAY - (Date.now() - (S.doneAt || Date.now()))) / 3600000));
+    return h === 1 ? "in 1 hour" : `in ${h} hours`;
+  };
   const tourOnHome = () => !allDone() || (S.tourHint && !dayPassed());
   if (!S.jobs || S.jobs.length !== slides().length) resetJobs();
 
@@ -780,7 +784,7 @@
           ${tourOnHome() ? `<div class="hm-tour">${checklist()}${allDone() ? `
             <div class="hm-tour-move" role="status">
               <span class="hm-tour-move-ico">${ico("user")}</span>
-              <p><b>This card leaves your home soon</b><span>Quick tour stays in your profile. Tap your photo at the top to open it.</span></p>
+              <p><b>This card leaves your home ${leavesIn()}</b><span>Quick tour stays in your profile. Tap your photo at the top to open it.</span></p>
               <button class="btn btn-ghost btn-sm" data-act="dismiss-tour">Got it</button>
             </div>` : ""}</div>` : ""}
           ${newsSlider()}
