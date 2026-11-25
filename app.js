@@ -783,9 +783,9 @@
         <div class="dash-grid">
           ${tourOnHome() ? `<div class="hm-tour">${checklist()}${allDone() ? `
             <div class="hm-tour-move" role="status">
-              <span class="hm-tour-move-ico">${ico("user")}</span>
-              <p><b>This card leaves your home ${leavesIn()}</b><span>Quick tour stays in your profile. Tap your photo at the top to open it.</span></p>
-              <button class="btn btn-ghost btn-sm" data-act="dismiss-tour">Got it</button>
+              ${ico("user")}
+              <p>This card leaves your home ${leavesIn()}. Quick tour stays in your profile.</p>
+              <button class="btn-link" data-act="dismiss-tour">Got it</button>
             </div>` : ""}</div>` : ""}
           ${newsSlider()}
           <section class="hm-sec ds-fade-up" aria-labelledby="hmProj">

@@ -283,13 +283,11 @@ body[data-view="landing"] .demo-btn-text small { font-size: 12px; }
 .acct-tour.is-done small { color: var(--green); font-weight: 600; }
 .acct-tour.is-done .acct-tour-pips i::after { background: var(--green); }
 .acct-tour.is-done:hover { border-color: color-mix(in srgb, var(--green) 40%, white); background: #f2fbf7; box-shadow: 0 8px 20px rgba(23, 147, 106, .14); }
-.hm-tour { display: grid; gap: 10px; }
-.hm-tour-move { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px dashed color-mix(in srgb, var(--indigo) 30%, white); border-radius: var(--radius); background: color-mix(in srgb, var(--indigo) 4%, white); animation: fu var(--t-slow) var(--ease) both; }
-.hm-tour-move-ico { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: 50%; background: #fff; color: var(--indigo); box-shadow: var(--e2); }
-.hm-tour-move-ico .ico { width: 16px; height: 16px; }
-.hm-tour-move p { flex: 1; min-width: 0; margin: 0; font-size: 13px; line-height: 1.4; color: var(--text-soft); }
-.hm-tour-move b { display: block; color: var(--text); font-size: 14px; }
-.hm-tour-move .btn { flex: none; }
+.hm-tour { display: grid; gap: 6px; }
+.hm-tour-move { display: flex; align-items: center; gap: 6px; padding: 0 8px; color: var(--text-mute); font-size: 12.5px; animation: fu var(--t-slow) var(--ease) both; }
+.hm-tour-move > .ico { width: 14px; height: 14px; flex: none; }
+.hm-tour-move p { margin: 0; min-width: 0; line-height: 1.4; }
+.hm-tour-move .btn-link { flex: none; padding: 2px 4px; font-size: 12.5px; color: var(--text-soft); }
 .acct-backlink { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 10px; padding: 0; border: 0; background: none; color: var(--indigo); font-weight: 650; font-size: 13px; }
 .acct-tour-page { padding: 4px 12px 20px; }
 .acct .ob { margin: 0; }
