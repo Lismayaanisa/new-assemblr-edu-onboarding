@@ -287,7 +287,6 @@ body[data-view="landing"] .demo-btn-text small { font-size: 12px; }
 .hm-tour-move { display: flex; align-items: center; gap: 6px; padding: 0 8px; color: var(--text-mute); font-size: 12.5px; animation: fu var(--t-slow) var(--ease) both; }
 .hm-tour-move > .ico { width: 14px; height: 14px; flex: none; }
 .hm-tour-move p { margin: 0; min-width: 0; line-height: 1.4; }
-.hm-tour-move .btn-link { flex: none; padding: 2px 4px; font-size: 12.5px; color: var(--text-soft); }
 .acct-backlink { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 10px; padding: 0; border: 0; background: none; color: var(--indigo); font-weight: 650; font-size: 13px; }
 .acct-tour-page { padding: 4px 12px 20px; }
 .acct .ob { margin: 0; }
