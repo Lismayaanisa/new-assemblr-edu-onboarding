@@ -290,8 +290,7 @@
       { title: "Publish when it looks right", body: "Give the project a name, then share the link.", target: "#btnPublish", blr: true, show: (w) => { ensureEditor(w); w.drawer = null; w.modal = null; } }
     ],
     "Edu Kits": [
-      { title: "Choose a subject and grade", body: "Pick one subject and one grade so the projects match your lesson.", target: "#filterBox", show: (w) => { w.screen = "edukits"; w.modal = null; w.phone = null; } },
-      { title: "Open a project", body: "These projects are ready to use. Tap the first one.", target: "#card0", show: (w) => { w.screen = "edukits"; w.filtered = true; w.filters.subject ||= "Biology"; w.filters.grade ||= "Grade 5"; } },
+      { title: "Open a project", body: "These projects are ready to use. Tap the first one.", target: "#card0", show: (w) => { w.screen = "edukits"; w.filtered = true; w.filters.subject ||= "Biology"; w.filters.grade ||= "Grade 5"; w.modal = null; w.phone = null; } },
       { title: "Look at it in 3D", body: "Turn it around, then tap View in AR to place it in the room.", target: "#btnAr", blr: true, show: (w) => { w.screen = "viewer"; w.viewerSrc = "kit"; w.kit = 0; w.phone = null; } }
     ],
     "Topic": [
