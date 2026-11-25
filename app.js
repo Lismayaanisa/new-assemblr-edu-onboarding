@@ -784,7 +784,7 @@
           ${tourOnHome() ? `<div class="hm-tour">${checklist()}${allDone() ? `
             <div class="hm-tour-move" role="status">
               ${ico("clock")}
-              <p>This card leaves your home ${leavesIn()}. Quick tour stays in your profile.</p>
+              <p>You've finished every mission, so this card leaves your home ${leavesIn()}. Quick tour stays in your profile.</p>
             </div>` : ""}</div>` : ""}
           ${newsSlider()}
           <section class="hm-sec ds-fade-up" aria-labelledby="hmProj">
