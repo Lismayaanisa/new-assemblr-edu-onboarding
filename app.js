@@ -522,11 +522,46 @@
      Welcome carousel (continues the setup-moment prototype)
      ========================================================= */
   let wIndex = 0, wTimer;
+  const clipBlob = {};
+  const clipWant = [];
+  let clipBusy = false, warmedRole = null;
+  const clipUrl = (src) => clipBlob[src] || src;
+  const posterOf = (src) => src.replace("/video/", "/video/posters/").replace(/\.mp4$/, ".jpg");
+  function warmClips(lists) {
+    const front = [...new Set(lists.flat())].filter((src) => !clipBlob[src]);
+    for (const src of front) {
+      const at = clipWant.indexOf(src);
+      if (at >= 0) clipWant.splice(at, 1);
+      else new Image().src = posterOf(src);
+    }
+    clipWant.unshift(...front);
+    pumpClips();
+  }
+  function warmRole() {
+    if (!S.role) return;
+    warmClips(slides().map((s) => C.clips(S.role, s.feature)));
+  }
+  function pumpClips() {
+    if (clipBusy) return;
+    const src = clipWant.shift();
+    if (!src) return;
+    if (clipBlob[src]) return pumpClips();
+    clipBusy = true;
+    fetch(src)
+      .then((r) => (r.ok ? r.blob() : null))
+      .then((b) => { if (b) clipBlob[src] = URL.createObjectURL(b); })
+      .catch(() => {})
+      .finally(() => { clipBusy = false; pumpClips(); });
+  }
+  function setClip(video, src) {
+    if (video.dataset.clip === src) { video.currentTime = 0; return; }
+    video.dataset.clip = src;
+    video.poster = posterOf(src);
+    video.src = clipUrl(src);
+  }
   function queueClip(video, list, index) {
     const next = (index + 1) % list.length;
-    const src = list[next];
-    if (video.getAttribute("src") !== src) video.src = src;
-    else video.currentTime = 0;
+    setClip(video, list[next]);
     video.play().catch(() => {});
     return next;
   }
@@ -534,7 +569,7 @@
     let busy = false;
     let played = false;
     const limitFor = () => {
-      const src = video.getAttribute("src") || video.currentSrc || "";
+      const src = video.dataset.clip || "";
       return typeof hold === "function" ? hold(src) : hold;
     };
     const advance = () => {
@@ -589,13 +624,13 @@
       shown.src = C.art(S.role, S.mi, s.feature);
       shown.alt = s.title;
     } else {
-      if (media.tagName !== "VIDEO") media.outerHTML = `<video class="welcome-art" id="welcomeArt" autoplay muted playsinline></video>`;
+      if (media.tagName !== "VIDEO") media.outerHTML = `<video class="welcome-art" id="welcomeArt" autoplay muted playsinline preload="auto"></video>`;
       const shown = $("#welcomeArt");
       shown.ontimeupdate = null;
       shown.onended = null;
       shown.muted = true;
-      if (shown.getAttribute("src") !== list[0]) shown.src = list[0];
-      else shown.currentTime = 0;
+      setClip(shown, list[0]);
+      warmClips([list, ...sl.slice(wIndex + 1).map((x) => C.clips(S.role, x.feature))]);
       const feature = slides()[wIndex].feature;
       watchQueue(
         shown,
@@ -997,7 +1032,7 @@
     const list = C.clips(S.role, s.feature);
     const art = C.art(S.role, S.mi, s.feature);
     const media = list.length
-      ? `<video id="briefVid" src="${list[0]}" autoplay muted playsinline></video>`
+      ? `<video id="briefVid" src="${clipUrl(list[0])}" data-clip="${list[0]}" poster="${posterOf(list[0])}" autoplay muted playsinline preload="auto"></video>`
       : `<img src="${art}" alt="">`;
     const playBtn = `<button class="brief-playbig" type="button" data-brief-play aria-label="${briefPlaying ? "Pause demo" : "Play demo"}">${ico(briefPlaying ? "pause" : "play")}</button>`;
     const controls = `
@@ -2098,7 +2133,7 @@
     v.dataset.bound = "1";
     v.muted = true;
     v.loop = false;
-    const feature = slides()[briefAt].feature;
+    warmClips([C.clips(S.role, slides()[briefAt].feature)]);
     watchQueue(
       v,
       () => C.clips(S.role, slides()[briefAt].feature),
@@ -2348,6 +2383,7 @@
     $("#board").hidden = S.view !== "board";
     $("#celebrate").hidden = true;
     if (S.view !== "app" || (!T.on && !G.on)) hideTour();
+    if (S.view === "app" && warmedRole !== S.role) { warmedRole = S.role; warmRole(); }
     if (S.view === "app") { renderWs(); if (ws.videoPop) bindBriefVideo(); if (T.on) { document.body.classList.add("is-touring"); paintCoach(); } if (G.on) { document.body.classList.add("is-touring"); paintGuide(); } }
     if (S.view === "flow") renderFlow();
     if (S.view === "board") renderBoard();

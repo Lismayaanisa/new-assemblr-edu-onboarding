@@ -294,27 +294,27 @@
      A feature plays the clips from that role's folder for the same feature, then starts again.
      Identical clips are shared across roles. Features with no folder stay on a photo. */
   const EDITOR_CLIPS = [
-    "assets/welcome/video/student-editor.mov",
-    "assets/welcome/video/student-editor-background.mov",
-    "assets/welcome/video/student-editor-animation.mov",
-    "assets/welcome/video/student-editor-marker-1.mov",
-    "assets/welcome/video/student-editor-marker-2.mov",
-    "assets/welcome/video/student-editor-marker-3.mov",
+    "assets/welcome/video/student-editor.mp4",
+    "assets/welcome/video/student-editor-background.mp4",
+    "assets/welcome/video/student-editor-animation.mp4",
+    "assets/welcome/video/student-editor-marker-1.mp4",
+    "assets/welcome/video/student-editor-marker-2.mp4",
+    "assets/welcome/video/student-editor-marker-3.mp4",
     "assets/welcome/video/student-editor-viscode.mp4",
-    "assets/welcome/video/student-visual-coding-2.mov",
-    "assets/welcome/video/student-visual-coding-3.mov"
+    "assets/welcome/video/student-visual-coding-2.mp4",
+    "assets/welcome/video/student-visual-coding-3.mp4"
   ];
   const VISCODE_CLIPS = [
-    "assets/welcome/video/student-editor.mov",
-    "assets/welcome/video/student-editor-background.mov",
+    "assets/welcome/video/student-editor.mp4",
+    "assets/welcome/video/student-editor-background.mp4",
     "assets/welcome/video/student-editor-viscode.mp4",
-    "assets/welcome/video/student-visual-coding-2.mov",
-    "assets/welcome/video/student-visual-coding-3.mov"
+    "assets/welcome/video/student-visual-coding-2.mp4",
+    "assets/welcome/video/student-visual-coding-3.mp4"
   ];
   const MARKER_CLIPS = [
-    "assets/welcome/video/student-editor-marker-1.mov",
-    "assets/welcome/video/student-editor-marker-2.mov",
-    "assets/welcome/video/student-editor-marker-3.mov"
+    "assets/welcome/video/student-editor-marker-1.mp4",
+    "assets/welcome/video/student-editor-marker-2.mp4",
+    "assets/welcome/video/student-editor-marker-3.mp4"
   ];
   const CLIP = {
     student: {
@@ -362,7 +362,7 @@
   };
   const clipHold = (role, feature, src) => {
     const file = String(src || "").split("?")[0];
-    if (file.endsWith("student-editor-marker-1.mov")) return 5;
+    if (file.endsWith("student-editor-marker-1.mp4")) return 5;
     return (CLIP_HOLD[role] || {})[feature] || 0;
   };
 
