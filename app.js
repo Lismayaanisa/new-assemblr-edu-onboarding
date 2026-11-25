@@ -7,12 +7,12 @@
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   /* Calling name follows the role's age. School student, university student, then adults. */
   const NAMES = {
-    student: "Maya",
-    university: "Nadia",
-    educator: "Rina",
-    parent: "Dewi",
-    lecturer: "Hendra",
-    other: "Santi"
+    student: "Mei",
+    university: "Xinyi",
+    educator: "Lian",
+    parent: "Hui",
+    lecturer: "Wei",
+    other: "Jia"
   };
   const name = () => NAMES[S.role] || NAMES.student;
 
@@ -66,7 +66,14 @@
     bulb: '<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.74V17h8v-2.26A7 7 0 0 0 12 2z"/>',
     crown: '<path d="m2 7 5 4 5-7 5 7 5-4-2 12H4z"/>',
     star: '<path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>',
-    bolt: '<path d="M13 2 3 14h9l-1 8 10-12h-9z"/>'
+    bolt: '<path d="M13 2 3 14h9l-1 8 10-12h-9z"/>',
+    user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+    card: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    life: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="m4.93 4.93 4.24 4.24M14.83 14.83l4.24 4.24M14.83 9.17l4.24-4.24M4.93 19.07l4.24-4.24"/>',
+    logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+    cloud: '<path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>',
+    coin: '<circle cx="12" cy="12" r="9"/><path d="M14.5 9.2a2.7 2.7 0 0 0-2.5-1.2c-1.5 0-2.5.8-2.5 1.9S11 11.6 12 12s2.5.8 2.5 2-1 2-2.5 2a2.7 2.7 0 0 1-2.5-1.3"/>'
   };
   const ico = (n, cls = "") => `<svg class="ico ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n] || ""}</svg>`;
 
@@ -137,13 +144,23 @@
     { role: "student", mi: 0, pick: 0, startFrom: "welcome", view: "landing", jobs: null, active: null, step: 0, tour: false, expanded: 0, flowRole: "student" },
     JSON.parse(localStorage.getItem(KEY) || "{}")
   );
-  const save = () => localStorage.setItem(KEY, JSON.stringify(S));
+  const save = () => {
+    if (allDone()) S.doneAt ||= Date.now();
+    else S.doneAt = null;
+    localStorage.setItem(KEY, JSON.stringify(S));
+  };
 
   const roleData = (r = S.role) => D.find((x) => x.id === r) || D[0];
   const mot = (r = S.role, i = S.mi) => roleData(r).motivations[i] || roleData(r).motivations[0];
   const slides = () => mot().slides;
   const ctx = () => C.ctx(S.role, S.mi);
-  const resetJobs = () => { S.jobs = slides().map(() => ({ status: "todo", done: 0 })); };
+  const resetJobs = () => { S.jobs = slides().map(() => ({ status: "todo", done: 0 })); S.tourHint = false; };
+  const allDone = () => S.jobs.length > 0 && S.jobs.every((j) => j.status === "done");
+  const markAllDone = () => S.jobs.forEach((j, i) => { j.status = "done"; j.done = slides()[i].flow.length; });
+  const tourState = () => (allDone() ? "done" : S.jobs.some((j) => j.status === "done" || j.status === "active" || j.done > 0) ? "doing" : "todo");
+  const DAY = 24 * 60 * 60 * 1000;
+  const dayPassed = () => allDone() && Boolean(S.doneAt) && Date.now() - S.doneAt >= DAY;
+  const tourOnHome = () => !allDone() || (S.tourHint && !dayPassed());
   if (!S.jobs || S.jobs.length !== slides().length) resetJobs();
 
   /* ---------- Workspace state ---------- */
@@ -152,7 +169,7 @@
     phone: null, viewerSrc: null, kit: 0, template: null, tplPick: null, score: 0, joined: false,
     filters: { subject: null, grade: null }, filtered: false, ai: null, aiPct: 0, aiTab: "image", aiPick: null, aiText: "", aiObj: null,
     markerPick: null, marker: null, className: "", classMat: null, classMade: false, codeCopied: false, assignDraft: "", videoPop: false,
-    edMode: "edit", collabOn: false, inviteCopied: false,
+    edMode: "edit", collabOn: false, inviteCopied: false, account: false,
     assignments: [], classTab: "materials", presentPick: null, presenting: false, rot: 0, copied: false
   });
   let ws = freshWs();
@@ -227,7 +244,27 @@
     scan: (w) => { w.phone = "marker-ar"; },
     "close-phone": (w) => { w.phone = null; },
     "close-modal": (w) => { w.modal = null; },
-    home: (w) => { Object.assign(w, { screen: "dash", drawer: null, modal: null, phone: null, presenting: false, videoPop: false }); briefPlaying = false; },
+    home: (w) => { Object.assign(w, { screen: "dash", drawer: null, modal: null, phone: null, presenting: false, videoPop: false, account: false }); briefPlaying = false; },
+    "open-account": (w) => { w.account = true; },
+    "close-account": (w) => { w.account = false; w.tourPage = false; },
+    "open-tour": (w) => { w.account = true; w.tourPage = true; S.tourHint = false; save(); },
+    "close-tour": (w) => { w.tourPage = false; },
+    "dismiss-tour": () => { S.tourHint = false; save(); },
+    "account-link": (_, d) => toast(({
+      coins: "BLR Coins open on the Assemblr EDU website",
+      markers: "Custom Markers open on the Assemblr EDU website",
+      renew: "Plans open on the Assemblr EDU website",
+      manage: "Plan settings open on the Assemblr EDU website",
+      voucher: "Voucher codes open on the Assemblr EDU website",
+      lessoncrafts: "LessonCrafts opens in a new tab",
+      profile: "Profile opens on the Assemblr EDU website",
+      billing: "Usage and billing open on the Assemblr EDU website",
+      security: "Login and security open on the Assemblr EDU website",
+      privacy: "Privacy opens on the Assemblr EDU website",
+      guide: "The guide opens on the Assemblr EDU website",
+      support: "Support opens on the Assemblr EDU website"
+    })[d.id] || "This opens on the Assemblr EDU website"),
+    "account-out": (w) => { w.account = false; toast("You're signed out of this demo"); },
     tutorial: () => toast("Tutorials are coming soon"),
     upgrade: () => toast("Plans open on the Assemblr EDU website"),
     competition: (w) => { ACT.home(w); setTimeout(() => $(".news")?.scrollIntoView({ behavior: "smooth", block: "center" }), 60); }
@@ -419,8 +456,8 @@
       </section>
       <section class="pn-sec">
         <h3 class="pn-h"><span class="pn-num">4</span>Start from</h3>
-        <div class="seg seg-sm" role="radiogroup" aria-label="Start from">
-          ${[["welcome", "Welcome page"], ["home", "Home checklist"], ["job", "Inside the job"]].map(([v, l]) => `<button role="radio" aria-checked="${v === draft.startFrom}" class="seg-btn${v === draft.startFrom ? " is-on" : ""}" data-start-pick="${v}">${l}</button>`).join("")}
+        <div class="seg seg-sm is-start" role="radiogroup" aria-label="Start from">
+          ${[["welcome", "Welcome page"], ["home", "Home checklist"], ["job", "Inside the job"], ["done", "All missions done"], ["later", "A day after done"]].map(([v, l]) => `<button role="radio" aria-checked="${v === draft.startFrom}" class="seg-btn${v === draft.startFrom ? " is-on" : ""}" data-start-pick="${v}">${l}</button>`).join("")}
         </div>
       </section>`;
   }
@@ -432,6 +469,14 @@
     closePanel();
     if (S.startFrom === "welcome") showWelcome();
     else if (S.startFrom === "home") { S.view = "app"; ws = freshWs(); render(); }
+    else if (S.startFrom === "done" || S.startFrom === "later") {
+      markAllDone();
+      S.tourHint = S.startFrom === "done";
+      S.doneAt = S.startFrom === "later" ? Date.now() - DAY : Date.now();
+      S.view = "app";
+      ws = freshWs();
+      render();
+    }
     else if (videoMission(S.pick)) openBrief(S.pick);
     else startJob(S.pick, 0);
     if (changed) toast(`Showing ${C.ROLES[S.role].label} · ${mot().motivation}`);
@@ -463,7 +508,11 @@
     paintPanel();
     $("#panelBody").scrollTop = sc;
   });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#panel").hidden) closePanel(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (ws.account) return act("close-account");
+    if (!$("#panel").hidden) closePanel();
+  });
 
   /* =========================================================
      Welcome carousel (continues the setup-moment prototype)
@@ -607,7 +656,7 @@
         <button class="btn-upgrade" data-act="upgrade">${ico("crown")}Upgrade</button>
         <span class="nav-crown" title="Starter Plan" aria-label="Starter Plan">${ico("crown")}</span>
         <button class="nav-ico" aria-label="Notifications">${ico("bell")}</button>
-        <span class="me" title="${name()} · ${esc(C.ROLES[S.role].label)}"><img src="assets/avatars/blr-1.png" alt="${name()}"></span>
+        <button class="me${allDone() && S.tourHint && !ws.account ? " is-blink" : ""}" data-act="open-account" aria-haspopup="dialog" aria-expanded="${ws.account ? "true" : "false"}" aria-label="Account, ${esc(name())}" title="${name()} · ${esc(C.ROLES[S.role].label)}"><img src="assets/avatars/blr-1.png" alt=""></button>
       </div>`;
   }
 
@@ -700,20 +749,40 @@
     if (root && Date.now() - newsAt > 6500 && !root.matches(":hover, :focus-within") && !matchMedia("(prefers-reduced-motion: reduce)").matches) newsShow(newsI + 1);
   }, 7000);
 
+  function quickCreate() {
+    const h = new Date().getHours();
+    const hello = h < 11 ? "Good morning" : h < 15 ? "Good afternoon" : h < 18 ? "Good evening" : "Good night";
+    const card = (cls, act, icon, title, sub, extra = "") => `<button class="qc-card ${cls}" ${act}>${extra}<span class="qc-ico">${icon}</span><span class="qc-copy"><b>${title}</b><small>${sub}</small></span></button>`;
+    return `
+        <section class="qc ds-fade-up" aria-labelledby="qcTitle">
+          <h1 id="qcTitle">${hello}, ${esc(name())}</h1>
+          <p class="lead">What will you make today?</p>
+          <div class="qc-grid">
+            ${card("is-ar", 'data-act="create"', ico("cube"), "Create an AR project", "Make interactive Augmented Reality content")}
+            ${card("is-ai", 'data-act="open-ai"', ico("sparkles"), "Generate a 3D object", "Make 3D objects from a prompt or an image, with AI")}
+            ${card("is-lc", 'data-act="account-link" data-id="lessoncrafts"', ico("book"), "Try LessonCrafts", "Make lesson plans, worksheets, flashcards, and more", `<span class="qc-new">Our new product${ico("right")}</span>`)}
+          </div>
+        </section>`;
+  }
   function scrDash() {
     const c = ctx();
     const hasProject = ws.published || S.jobs.some((j) => j.status === "done");
     return `
       <div class="dash">
-        <section class="hero ds-fade-up">
-          ${S.jobs.every((j) => j.status === "done")
+        ${dayPassed() ? quickCreate() : `<section class="hero ds-fade-up">
+          ${allDone()
             ? `<h1>Nice work, ${name()}!</h1>
           <p class="lead">You've explored Assemblr EDU. Now create your own and share it with ${esc(c.audience)}.</p>`
             : `<h1>Hi ${name()}! Try this now</h1>
           <p class="lead">In a few minutes, you'll have something to show ${esc(c.audience)}.</p>`}
-        </section>
+        </section>`}
         <div class="dash-grid">
-          ${checklist()}
+          ${tourOnHome() ? `<div class="hm-tour">${checklist()}${allDone() ? `
+            <div class="hm-tour-move" role="status">
+              <span class="hm-tour-move-ico">${ico("user")}</span>
+              <p><b>This card leaves your home soon</b><span>Quick tour stays in your profile. Tap your photo at the top to open it.</span></p>
+              <button class="btn btn-ghost btn-sm" data-act="dismiss-tour">Got it</button>
+            </div>` : ""}</div>` : ""}
           ${newsSlider()}
           <section class="hm-sec ds-fade-up" aria-labelledby="hmProj">
             <div class="hm-head"><h2 class="sec-h" id="hmProj">Your AR projects</h2><button class="hm-link" data-act="create">Open editor${ico("chevron", "hm-chev")}</button></div>
@@ -855,13 +924,13 @@
             <p class="lead">Open ${esc(featurePhrase(s.feature))} and make something of your own. <span class="brief-mins">About ${mins} min.</span></p>
             <button class="btn-link" data-brief-skip>Skip this mission</button>
           </div>
-          <button class="btn btn-primary brief-cta" data-brief-try>${ico("play")}${esc(briefCta())}</button>
+          <button class="btn btn-primary brief-cta" data-brief-try>${esc(briefCta())}${ico("right")}</button>
         </section>
       </div>
       <div class="brief-dock">
         <div class="brief-dock-in">
           <p><b>${esc(feat)}</b><span>About ${mins} min in the product</span></p>
-          <button class="btn btn-primary" data-brief-try>${ico("play")}${esc(briefCta())}</button>
+          <button class="btn btn-primary" data-brief-try>${esc(briefCta())}${ico("right")}</button>
         </div>
       </div>`;
   }
@@ -950,7 +1019,7 @@
             ${list.length ? "" : controls}
           </div>
           <div class="vidpop-actions">
-            <button class="btn btn-primary vidpop-try" type="button" data-vid-try>${ico("play")}Try ${esc(feat)}</button>
+            <button class="btn btn-primary vidpop-try" type="button" data-vid-try>Try ${esc(feat)}${ico("right")}</button>
           </div>
         </div>
       </div>`;
@@ -1006,6 +1075,7 @@
     G.on = false;
     hideTour();
     save();
+    if (allDone()) { S.tourHint = true; save(); celebrate(briefAt); return; }
     render();
     toast("You're ready to try this");
   }
@@ -1429,7 +1499,82 @@
         <button class="icon-btn sm ar-close" data-act="close-phone" aria-label="Close">${ico("x")}</button>
       </div></div>`;
     }
-    return m + p + (ws.videoPop ? videoPop() : "");
+    return m + p + (ws.videoPop ? videoPop() : "") + accountPanel();
+  }
+  const STAR = "M12 0C12.8 7 17 11.2 24 12C17 12.8 12.8 17 12 24C11.2 17 7 12.8 0 12C7 11.2 11.2 7 12 0Z";
+  const SPARK = `<svg class="acct-tour-spark" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="tourSparkFill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe27a"/><stop offset="1" stop-color="#f5a800"/></linearGradient></defs><g transform="translate(0 6) scale(.62)"><path class="is-big" d="${STAR}"/></g><g transform="translate(15 0) scale(.32)"><path class="is-small" d="${STAR}"/></g></svg>`;
+  function tourEntry() {
+    const sl = slides();
+    const state = tourState();
+    const done = S.jobs.filter((j) => j.status === "done").length;
+    const note = { todo: `${sl.length} missions to try`, doing: `${done} of ${sl.length} done`, done: `All ${sl.length} done` }[state];
+    const pips = sl.map((s, i) => {
+      const j = S.jobs[i];
+      const p = j.status === "done" ? 100 : Math.round((j.done / s.flow.length) * 100);
+      return `<i style="--p:${p}%"></i>`;
+    }).join("");
+    return `<button class="acct-tour is-${state}" data-act="open-tour" aria-label="Quick tour, ${note}">
+          <span class="acct-tour-badge">${ico(state === "done" ? "check" : "flag")}${SPARK}</span>
+          <span class="acct-tour-copy"><b>Quick tour</b><small>${note}</small></span>
+          <span class="acct-tour-pips" aria-hidden="true">${pips}</span>
+          ${ico("right", "acct-tour-go")}
+        </button>`;
+  }
+  function accountPanel() {
+    if (!ws.account) return "";
+    const row = (id, icon, label) => `<button class="acct-row" data-act="account-link" data-id="${id}">${ico(icon)}<span>${label}</span></button>`;
+    return `<div class="acct-layer">
+      <button class="acct-back" data-act="close-account" aria-label="Close account"></button>
+      <aside class="acct" role="dialog" aria-modal="true" aria-labelledby="acctName">
+        <header class="acct-head">
+          <img src="assets/avatars/blr-1.png" alt="">
+          <div><b id="acctName">${esc(name())}</b><small>@${esc(name().toLowerCase())}</small></div>
+          <button class="icon-btn sm acct-x" data-act="close-account" aria-label="Close">${ico("x")}</button>
+        </header>
+        ${ws.tourPage ? `<div class="acct-tour-page"><button class="acct-backlink" data-act="close-tour">${ico("left")}Account</button>${checklist(true)}</div>` : `
+        <div class="acct-plan">
+          <p class="acct-live">${ico("check")}Premium is active</p>
+          <p class="acct-plan-name">SINGLE ${ico("check")}</p>
+          <p class="acct-dates">1 Nov 2024 – 1 Dec 2100 · 76 years 1 month</p>
+          <p class="acct-quota">Project editing quota</p>
+          <div class="acct-meter">
+            <span class="acct-ico is-coin">${ico("coin")}</span>
+            <span class="acct-meter-label"><b>120</b><span>BLR Coins</span></span>
+            <button class="acct-plus" data-act="account-link" data-id="coins" aria-label="Add BLR Coins">${ico("plus")}</button>
+          </div>
+          <div class="acct-meter">
+            <span class="acct-ico is-marker">${ico("scan")}</span>
+            <span class="acct-meter-label"><b>22/101</b><span>Custom Markers</span></span>
+            <i class="acct-bar is-marker" style="--p:22%"></i>
+            <button class="acct-plus" data-act="account-link" data-id="markers" aria-label="Add Custom Markers">${ico("plus")}</button>
+          </div>
+          <div class="acct-meter">
+            <span class="acct-ico is-store">${ico("cloud")}</span>
+            <span class="acct-meter-label"><b>1.82 GB</b><span>/ 3 TB storage</span></span>
+            <i class="acct-bar is-store" style="--p:2%"></i>
+          </div>
+          <div class="acct-actions">
+            <button class="acct-renew" data-act="account-link" data-id="renew">Renew plan</button>
+            <button class="acct-ghost" data-act="account-link" data-id="manage">Manage plan</button>
+            <button class="acct-ghost" data-act="account-link" data-id="voucher">Redeem a voucher</button>
+          </div>
+        </div>
+        ${tourEntry()}
+        <section class="acct-sec">
+          <h3>Settings</h3>
+          ${row("profile", "user", "Profile")}
+          ${row("billing", "card", "Usage and billing")}
+          ${row("security", "lock", "Login and security")}
+          ${row("privacy", "shield", "Privacy")}
+        </section>
+        <section class="acct-sec">
+          <h3>Support</h3>
+          ${row("guide", "book", "Guide")}
+          ${row("support", "life", "Support")}
+          <button class="acct-row is-out" data-act="account-out">${ico("logout")}<span>Log out</span></button>
+        </section>`}
+      </aside>
+    </div>`;
   }
   function modal(id, title, body, foot) {
     return `<div class="modal-layer"><div class="modal" id="${id}" role="dialog" aria-modal="true" aria-label="${esc(title)}">
@@ -1875,7 +2020,15 @@
     if (!b) return;
     $("#celebrate").hidden = true;
     if (b.dataset.cele === "next") { const n = +b.dataset.i; return videoMission(n) ? openBrief(n) : startJob(n, 0); }
-    else { ws = freshWs(); ws.published = true; S.expanded = S.jobs.findIndex((j) => j.status !== "done"); render(); }
+    else {
+      const done = allDone();
+      ws = freshWs();
+      ws.published = true;
+      if (done) S.tourHint = true;
+      S.expanded = S.jobs.findIndex((j) => j.status !== "done");
+      save();
+      render();
+    }
   });
 
   /* Checklist interactions (home card and launcher pop-over) */
