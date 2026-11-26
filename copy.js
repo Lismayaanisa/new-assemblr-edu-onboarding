@@ -345,6 +345,16 @@
       "Editor + Custom Marker": MARKER_CLIPS,
       "Visual Coding": VISCODE_CLIPS,
       "AI-3D Generation": ["assets/welcome/video/university-ai.mp4"]
+    },
+    lecturer: {
+      "Editor": EDITOR_CLIPS,
+      "Custom Marker": MARKER_CLIPS,
+      "AI-3D Generation": ["assets/welcome/video/university-ai.mp4"]
+    },
+    other: {
+      "Editor": EDITOR_CLIPS,
+      "Custom Marker": MARKER_CLIPS,
+      "AI-3D Generation": ["assets/welcome/video/university-ai.mp4"]
     }
   };
   const clips = (role, feature) => {
@@ -358,7 +368,9 @@
   const CLIP_HOLD = {
     student: { "Editor": 3 },
     parent: { "Editor": 3 },
-    university: { "Editor + Custom Marker": 3, "Visual Coding": 3 }
+    university: { "Editor + Custom Marker": 3, "Visual Coding": 3 },
+    lecturer: { "Editor": 3, "Custom Marker": 3 },
+    other: { "Editor": 3, "Custom Marker": 3 }
   };
   const clipHold = (role, feature, src) => {
     const file = String(src || "").split("?")[0];
