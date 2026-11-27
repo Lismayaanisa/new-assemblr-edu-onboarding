@@ -321,7 +321,7 @@ window.OB_DATA = [
    {
     "motivation": "Use ready-to-use materials for my lessons",
     "followUp": null,
-    "draft": true,
+    "draft": false,
     "owner": false,
     "slides": [
      {
@@ -368,7 +368,7 @@ window.OB_DATA = [
    {
     "motivation": "Create a project for my students",
     "followUp": null,
-    "draft": true,
+    "draft": false,
     "owner": false,
     "slides": [
      {
@@ -418,7 +418,7 @@ window.OB_DATA = [
    {
     "motivation": "Create a project for an exam, assessment, or qualification",
     "followUp": "Who is organizing this?",
-    "draft": true,
+    "draft": false,
     "owner": false,
     "slides": [
      {
@@ -468,7 +468,7 @@ window.OB_DATA = [
    {
     "motivation": "Introduce AR/Immersive tech to my students",
     "followUp": null,
-    "draft": true,
+    "draft": false,
     "owner": false,
     "slides": [
      {
@@ -515,7 +515,7 @@ window.OB_DATA = [
    {
     "motivation": "Improve my digital teaching skills",
     "followUp": null,
-    "draft": true,
+    "draft": false,
     "owner": false,
     "slides": [
      {
@@ -565,7 +565,7 @@ window.OB_DATA = [
    {
     "motivation": "Other",
     "followUp": "What's your motivation?",
-    "draft": true,
+    "draft": false,
     "owner": false,
     "slides": [
      {
